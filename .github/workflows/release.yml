@@ -1,0 +1,28 @@
+name: Release Python Library
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_release:
+    name: Build and Release Wheels
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+    - name: Build library
+      run: uv build
+    - name: Create GitHub Release and Upload Assets
+      id: create_release
+      uses: softprops/action-gh-release@v2
+      with:
+          files: dist/*
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc') }}
